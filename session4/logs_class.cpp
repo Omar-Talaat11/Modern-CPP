@@ -41,7 +41,7 @@ class LOG
                 std::cout<<"Error";
                 break;
             }
-            std::cout<<" & Messages is: "<<LogMessages[i]<<std::endl;
+            std::cout<<" - Messages: "<<LogMessages[i]<<std::endl;
         }
     }
 
@@ -66,15 +66,17 @@ class LOG
 
     void operator<<(const char*msg)
     {
+        if(LogNumber==30) return;
         char* ptr = new char(std::strlen(msg));
         std::strcpy(ptr,msg);
         LogMessages[LogNumber] = ptr;
         LogNumber++;
-        std::cout<<"Saved Message: "<<ptr<<std::endl;
+        // std::cout<<"Saved Message: "<<ptr<<std::endl;
     }
     
     static void Level(const char level)
     {
+        if(LogNumber==30) return;
         LogLevels[LogNumber]=level;
     }
 };
@@ -95,10 +97,10 @@ int main()
     LOG myLog;
     myLog.Level(LOG::WARN);
     myLog<<"forget to close file";
-    myLog.Level(LOG::ERROR);
+    myLog.Level(LOG::WARN);
     myLog<<"forget to close file"; 
     myLog.Clear();
-    myLog.Level(LOG::WARN);
+    myLog.Level(LOG::ERROR);
     myLog<<"code is crashing"; 
     f();
     myLog.Dump();

@@ -2,6 +2,10 @@
 #include <cstring>
 #include <algorithm>
 
+#define EnterFun BackTrace B(__FUNCTION__)
+#define ExitFun B.exit(__FUNCTION__)
+#define PrintBackTrace BackTrace::printBackTrace()
+
 
 
 class BackTrace
@@ -10,30 +14,27 @@ class BackTrace
     BackTrace(const char*name)
     {
         std::cout<<"Enter "<< name<<std::endl;
-        char * ptr= new char[sizeof(*name)];
+        char * ptr= new char[sizeof(*name)+1];
         std::strcpy(ptr,name);
         names[num_of_calls]=ptr;
         num_of_calls++;
     }
     ~BackTrace()
     {
+        if (num_of_calls > 0) {
         num_of_calls--;
-        std::cout<<"Exit "<< names[num_of_calls]<<std::endl;
-        std::strcpy(names[num_of_calls],"");
+        delete[] names[num_of_calls];
+        names[num_of_calls]=nullptr;
+        }
 
     }
-    void printBackTrace(void)
+    static void printBackTrace();
+
+    void exit(const char*fun)
     {
-        int i = 0;
-        std::for_each(std::begin(names),std::end(names),[&i](char* a)
-        {
-            if(a!=0)
-            {
-                std::cout<<i+1<<" - "<<names[i]<<std::endl;
-                i++;
-            }
-        });
+        std::cout<<"Exit "<< names[num_of_calls-1]<<std::endl;
     }
+    
     private:
     static const int MAX_CALLS = 5;
     static int num_of_calls;
@@ -41,31 +42,53 @@ class BackTrace
 
 };
 
+void BackTrace::printBackTrace()
+{
+        int i = 0;
+        std::for_each(std::begin(names),std::end(names),[&i](char* a)
+        {
+            if(a!=nullptr)
+            {
+                std::cout<<i+1<<" - "<<names[i]<<std::endl;
+                i++;
+            }
+        });
+    }
+    
 int BackTrace::num_of_calls=0;
-char *BackTrace::names[BackTrace::MAX_CALLS]={0};
+char *BackTrace::names[BackTrace::MAX_CALLS]={nullptr};
 
-void fun3(void)
+void Function_4(void)
 {
-    BackTrace B3{"Function 3"};
-    B3.printBackTrace();
+    EnterFun;
+    PrintBackTrace;
+    ExitFun;
 }
 
-void fun2(void)
+void Function_3(void)
 {
-    BackTrace B2{"Function 2"};
-    fun3();
+    EnterFun;
+
+    ExitFun;
 }
 
-void fun1(void)
+void Function_2(void)
 {
-    BackTrace B{"Function 1"};
-    fun2();
+    EnterFun;
+    Function_3();
+    Function_4();
+    ExitFun;
 }
 
-
+void Function_1(void)
+{
+    EnterFun;
+    Function_2();
+    ExitFun;
+}
 
 
 int main()
 {
-    fun1();
+    Function_1();
 }
